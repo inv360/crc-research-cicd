@@ -44,6 +44,7 @@ interface PredictionResponse {
 export class App {
 
   title = 'CRC Research Prediction Dashboard';
+  readonly isPublicDemo = window.location.hostname === 'inv360.github.io';
 
   // Flask backend endpoint
   private readonly apiUrl = 'http://127.0.0.1:5000/predict';

@@ -156,12 +156,23 @@
         <!-- =============================================== -->
         <!-- FORM ACTIONS                                    -->
         <!-- =============================================== -->
-
+        @if (isPublicDemo) {
+          <div class="result-disclaimer">
+            <strong>Public Research Demonstration</strong>
+            <p>
+              This website demonstrates the CRC research dashboard and
+              its 24 input features. Machine learning predictions are
+              available only in the local development environment,
+              where the Flask API and trained models are running.
+              No clinical predictions are available on this public website.
+            </p>
+          </div>
+        }
         <div class="form-actions">
 
           <button
             type="submit"
-            [disabled]="crcForm.invalid || isLoading">
+            [disabled]="crcForm.invalid || isLoading || isPublicDemo">
 
             @if (isLoading) {
               Processing Prediction...
