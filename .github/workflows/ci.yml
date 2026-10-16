@@ -1,0 +1,87 @@
+
+name: CRC Research CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+
+  # ==========================================
+  # JOB 1: PYTHON BACKEND VALIDATION
+  # ==========================================
+
+  python-backend:
+    name: Python Backend Validation
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Display Python version
+        run: python --version
+
+      - name: Check Python source syntax
+        run: |
+          python -m py_compile final_crc.py
+          python -m compileall -q backend
+
+      - name: Confirm Python validation
+        run: |
+          echo "Python source syntax validation passed."
+          echo "Trained model files are excluded from GitHub."
+          echo "ML inference tests are not run in this workflow."
+
+  # ==========================================
+  # JOB 2: ANGULAR FRONTEND BUILD
+  # ==========================================
+
+  angular-frontend:
+    name: Angular Frontend Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Display Node and npm versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install Angular dependencies
+        run: npm ci
+
+      - name: Build Angular application
+        run: npm run build
+
+      - name: Confirm Angular build
+        run: |
+          echo "Angular production build completed."
+          echo "Frontend is ready for deployment configuration."
