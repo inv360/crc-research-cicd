@@ -1,0 +1,68 @@
+
+# ==========================================
+# CRC Research Project - Git Ignore
+# ==========================================
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache and generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local datasets - do not publish by default
+data/
+*.csv
+*.xlsx
+*.xls
+*.parquet
+
+# Trained ML models - exclude until reviewed
+backend/models/
+*.pkl
+*.pickle
+*.joblib
+
+# Angular / Node dependencies
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+.angular/
+coverage/
+
+# Angular local environment files
+frontend/.env
+frontend/.env.*
+
+# IDE and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+tmp/
+temp/

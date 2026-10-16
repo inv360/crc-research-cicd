@@ -1,0 +1,379 @@
+
+<div class="dashboard">
+
+  <!-- ===================================================== -->
+  <!-- HEADER                                                -->
+  <!-- ===================================================== -->
+
+  <header>
+    <h1>CRC Research Prediction Dashboard</h1>
+    <p>SVSE Machine Learning Research Application</p>
+  </header>
+
+  <main>
+
+    <!-- =================================================== -->
+    <!-- MODEL INFORMATION                                   -->
+    <!-- =================================================== -->
+
+    <section>
+      <h2>Research Model</h2>
+
+      <p>
+        Logistic Regression + XGBoost + SHAP + Meta-Learner
+      </p>
+
+      <p>
+        Input features: {{ fields.length }}
+      </p>
+    </section>
+
+    <!-- =================================================== -->
+    <!-- PREDICTION MODULE                                   -->
+    <!-- =================================================== -->
+
+    <section>
+      <h2>Prediction Module</h2>
+
+      <p>
+        Enter all required research input features below.
+        The form sends the data to the locally running
+        Flask API for inference using the trained ensemble.
+      </p>
+    </section>
+
+    <!-- =================================================== -->
+    <!-- CRC INPUT FORM                                      -->
+    <!-- =================================================== -->
+
+    <section class="form-section">
+
+      <h2>CRC Research Input Form</h2>
+
+      <form
+        #crcForm="ngForm"
+        (ngSubmit)="previewInput()">
+
+        <div class="form-grid">
+
+          @for (field of fields; track field.name) {
+
+            <div class="form-group">
+
+              <label [for]="field.name">
+                {{ field.label }}
+              </label>
+
+              <!-- ========================================= -->
+              <!-- CATEGORICAL FEATURES                      -->
+              <!-- ========================================= -->
+
+              @if (field.type === 'select') {
+
+                <select
+                  [id]="field.name"
+                  [name]="field.name"
+                  [(ngModel)]="formData[field.name]"
+                  required>
+
+                  <option [ngValue]="null" disabled>
+                    Select an option
+                  </option>
+
+                  @for (
+                    option of field.options ?? [];
+                    track option
+                  ) {
+
+                    <option [ngValue]="option">
+                      {{ option }}
+                    </option>
+
+                  }
+
+                </select>
+
+              }
+
+              <!-- ========================================= -->
+              <!-- BINARY FEATURES                           -->
+              <!-- ========================================= -->
+
+              @else if (field.type === 'binary') {
+
+                <select
+                  [id]="field.name"
+                  [name]="field.name"
+                  [(ngModel)]="formData[field.name]"
+                  required>
+
+                  <option [ngValue]="null" disabled>
+                    Select an option
+                  </option>
+
+                  <option [ngValue]="0">
+                    No (0)
+                  </option>
+
+                  <option [ngValue]="1">
+                    Yes (1)
+                  </option>
+
+                </select>
+
+              }
+
+              <!-- ========================================= -->
+              <!-- NUMERICAL FEATURES                        -->
+              <!-- ========================================= -->
+
+              @else {
+
+                <input
+                  type="number"
+                  [id]="field.name"
+                  [name]="field.name"
+                  [(ngModel)]="formData[field.name]"
+                  [min]="field.min ?? null"
+                  [max]="field.max ?? null"
+                  [step]="field.step ?? 1"
+                  placeholder="Enter value"
+                  required />
+
+                <small>
+                  Dataset range:
+                  {{ field.min }} to {{ field.max }}
+                </small>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+        <!-- =============================================== -->
+        <!-- FORM ACTIONS                                    -->
+        <!-- =============================================== -->
+
+        <div class="form-actions">
+
+          <button
+            type="submit"
+            [disabled]="crcForm.invalid || isLoading">
+
+            @if (isLoading) {
+              Processing Prediction...
+            } @else {
+              Generate Research Prediction
+            }
+
+          </button>
+
+          <button
+            type="button"
+            [disabled]="isLoading"
+            (click)="resetForm()">
+
+            Reset Form
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+    <!-- =================================================== -->
+    <!-- LOADING STATUS                                      -->
+    <!-- =================================================== -->
+
+    @if (isLoading) {
+
+      <section class="prediction-loading">
+
+        <h2>Processing Research Prediction</h2>
+
+        <p>
+          The Flask API is processing the input data using
+          Logistic Regression, XGBoost, SHAP, and the
+          trained meta-learner.
+        </p>
+
+        <p>
+          Please wait...
+        </p>
+
+      </section>
+
+    }
+
+    <!-- =================================================== -->
+    <!-- ERROR MESSAGE                                       -->
+    <!-- =================================================== -->
+
+    @if (predictionError) {
+
+      <section class="prediction-error">
+
+        <h2>Prediction Request Failed</h2>
+
+        <p>
+          {{ predictionError }}
+        </p>
+
+        <p>
+          Check whether the Flask backend is running
+          on http://127.0.0.1:5000.
+        </p>
+
+      </section>
+
+    }
+
+    <!-- =================================================== -->
+    <!-- PREDICTION RESULTS                                  -->
+    <!-- =================================================== -->
+
+    @if (predictionResult; as result) {
+
+      <section class="prediction-results">
+
+        <h2>CRC Research Prediction Results</h2>
+
+        <p>
+          Model: {{ result.model }}
+        </p>
+
+        <!-- =============================================== -->
+        <!-- FINAL ENSEMBLE SCORE                            -->
+        <!-- =============================================== -->
+
+        <div class="result-highlight">
+
+          <h3>Ensemble Positive-Class Score</h3>
+
+          <div class="result-score">
+
+            {{
+              (result.probability * 100).toFixed(2)
+            }}%
+
+          </div>
+
+          <p>
+            Output of the trained research ensemble.
+            This is not a clinically validated
+            colorectal cancer risk probability.
+          </p>
+
+        </div>
+
+        <!-- =============================================== -->
+        <!-- INDIVIDUAL MODEL SCORES                         -->
+        <!-- =============================================== -->
+
+        <div class="result-grid">
+
+          <div class="result-card">
+
+            <h3>Logistic Regression</h3>
+
+            <div class="result-value">
+
+              {{
+                (result.lr_probability * 100).toFixed(2)
+              }}%
+
+            </div>
+
+            <p>
+              Base model positive-class score
+            </p>
+
+          </div>
+
+          <div class="result-card">
+
+            <h3>XGBoost</h3>
+
+            <div class="result-value">
+
+              {{
+                (result.xgb_probability * 100).toFixed(2)
+              }}%
+
+            </div>
+
+            <p>
+              Gradient-boosted model positive-class score
+            </p>
+
+          </div>
+
+          <div class="result-card">
+
+            <h3>SHAP Magnitude</h3>
+
+            <div class="result-value">
+
+              {{
+                result.shap_magnitude.toFixed(4)
+              }}
+
+            </div>
+
+            <p>
+              Mean absolute SHAP magnitude used
+              as a meta-learner input
+            </p>
+
+          </div>
+
+        </div>
+
+        <!-- =============================================== -->
+        <!-- RESEARCH DISCLAIMER                             -->
+        <!-- =============================================== -->
+
+        <div class="result-disclaimer">
+
+          <strong>Research Disclaimer</strong>
+
+          <p>
+            {{ result.disclaimer }}
+          </p>
+
+          <p>
+            The reported scores are outputs of an
+            experimental machine learning model.
+            They must not be used for diagnosis,
+            screening, treatment decisions,
+            or clinical risk assessment.
+          </p>
+
+        </div>
+
+      </section>
+
+    }
+
+    <!-- =================================================== -->
+    <!-- PAGE FOOTER                                         -->
+    <!-- =================================================== -->
+
+    <footer>
+
+      <p>
+        Research prototype only. Not validated for clinical use.
+        No diagnosis or clinical decision should be based on
+        this application.
+      </p>
+
+    </footer>
+
+  </main>
+
+</div>
