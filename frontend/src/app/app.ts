@@ -43,6 +43,8 @@ interface PredictionResponse {
 })
 export class App {
 
+  readonly demoVersion = 'CI/CD Demo v2';
+
   title = 'CRC Research Prediction Dashboard';
   readonly isPublicDemo = window.location.hostname === 'inv360.github.io';
 

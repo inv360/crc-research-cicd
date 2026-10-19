@@ -333,3 +333,12 @@ footer p {
     width: 100%;
   }
 }
+.deployment-banner {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px 0;
+}
