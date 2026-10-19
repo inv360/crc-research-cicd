@@ -342,3 +342,6 @@ footer p {
   text-align: center;
   margin: 15px 0;
 }
+.deployment-banner {
+  color: #14532d !important;
+}
